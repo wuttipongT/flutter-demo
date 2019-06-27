@@ -1,5 +1,6 @@
 import 'package:asset_mobile/model/employee_response.dart';
 import 'package:asset_mobile/repository/employee_api_provider.dart';
+import 'package:asset_mobile/model/chart_model.dart';
 
 class EmployeeRepository {
   EmployeeApiProvider _apiProvider = EmployeeApiProvider();
@@ -40,6 +41,10 @@ class EmployeeRepository {
 
   Future<List<Map<String, dynamic>>> getPcDetailByKey(var box, String token) {
     return _apiProvider.getPcDetailByKey(box, token);
+  }
+
+  Future<ChartModelResponse> getChart(String token) async{
+    return await _apiProvider.getChart(token);
   }
 
 }

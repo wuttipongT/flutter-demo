@@ -5,20 +5,21 @@
 /// to also be [endDrawArea].
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
-
+import 'package:asset_mobile/model/chart_model.dart';
+import 'package:asset_mobile/bloc/employee_bloc.dart';
 /// Example that shows how to build a datum legend that shows measure values.
 ///
 /// Also shows the option to provide a custom measure formatter.
 class DatumLegendWithMeasures extends StatelessWidget {
-  final List<charts.Series> seriesList;
+  List<charts.Series> seriesList;
   final bool animate;
   final GlobalKey<ScaffoldState> scaffoldKey;
 
-  DatumLegendWithMeasures(this.seriesList, {this.animate, this.scaffoldKey});
+  DatumLegendWithMeasures( {this.animate, this.scaffoldKey});
 
   factory DatumLegendWithMeasures.withSampleData(GlobalKey<ScaffoldState> scaffoldKey) {
+
     return new DatumLegendWithMeasures(
-      _createSampleData(),
       // Disable animations for image tests.
       animate: true,
       scaffoldKey: scaffoldKey,
@@ -34,37 +35,43 @@ class DatumLegendWithMeasures extends StatelessWidget {
             onPressed: () => scaffoldKey.currentState.openDrawer()
         ),
       ),
-      body: new charts.PieChart(
-        seriesList,
-        animate: animate,
-        // Add the legend behavior to the chart to turn on legends.
-        // This example shows how to optionally show measure and provide a custom
-        // formatter.
-        behaviors: [
-          new charts.DatumLegend(
-            // Positions for "start" and "end" will be left and right respectively
-            // for widgets with a build context that has directionality ltr.
-            // For rtl, "start" and "end" will be right and left respectively.
-            // Since this example has directionality of ltr, the legend is
-            // positioned on the right side of the chart.
-            position: charts.BehaviorPosition.end,
-            // By default, if the position of the chart is on the left or right of
-            // the chart, [horizontalFirst] is set to false. This means that the
-            // legend entries will grow as new rows first instead of a new column.
-            horizontalFirst: false,
-            // This defines the padding around each legend entry.
-            cellPadding: new EdgeInsets.only(right: 4.0, bottom: 4.0),
-            // Set [showMeasures] to true to display measures in series legend.
-            showMeasures: true,
-            // Configure the measure value to be shown by default in the legend.
-            legendDefaultMeasure: charts.LegendDefaultMeasure.firstValue,
-            // Optionally provide a measure formatter to format the measure value.
-            // If none is specified the value is formatted as a decimal.
-            measureFormatter: (num value) {
-              return value == null ? '-' : '${value}k';
-            },
-          ),
-        ],
+      body: FutureBuilder(
+        future: _createSampleData2() ,
+        builder: (BuildContext context, AsyncSnapshot<void> snapshot){
+          return snapshot.connectionState == ConnectionState.done ? new charts.PieChart(
+            seriesList,
+            animate: animate,
+            // Add the legend behavior to the chart to turn on legends.
+            // This example shows how to optionally show measure and provide a custom
+            // formatter.
+            behaviors: [
+              new charts.DatumLegend(
+                // Positions for "start" and "end" will be left and right respectively
+                // for widgets with a build context that has directionality ltr.
+                // For rtl, "start" and "end" will be right and left respectively.
+                // Since this example has directionality of ltr, the legend is
+                // positioned on the right side of the chart.
+                position: charts.BehaviorPosition.end,
+                // By default, if the position of the chart is on the left or right of
+                // the chart, [horizontalFirst] is set to false. This means that the
+                // legend entries will grow as new rows first instead of a new column.
+                horizontalFirst: false,
+                // This defines the padding around each legend entry.
+                cellPadding: new EdgeInsets.only(right: 4.0, bottom: 4.0),
+                // Set [showMeasures] to true to display measures in series legend.
+                showMeasures: true,
+                // Configure the measure value to be shown by default in the legend.
+                legendDefaultMeasure: charts.LegendDefaultMeasure.firstValue,
+                // Optionally provide a measure formatter to format the measure value.
+                // If none is specified the value is formatted as a decimal.
+//                measureFormatter: (num value) {
+//                  return value == null ? '-' : '${value}';
+//                },
+              ),
+            ],
+          ) : CircularProgressIndicator();
+
+        },
       ),
     );
   }
@@ -87,6 +94,20 @@ class DatumLegendWithMeasures extends StatelessWidget {
       )
     ];
   }
+
+  Future <void> _createSampleData2() async {
+    List<ChartModel> data = await bloc.getChart();
+
+    seriesList =  [
+      new charts.Series<ChartModel, String>(
+        id: 'Sales',
+        domainFn: (ChartModel model, _) => model.name,
+        measureFn: (ChartModel model, _) => model.qty,
+        data: data,
+      )
+    ];
+  }
+
 }
 
 /// Sample linear data type.

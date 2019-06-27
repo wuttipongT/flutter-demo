@@ -124,7 +124,8 @@ class _ListViewState extends State<ListViewCheck>{
   Future<List<Map<String, dynamic>>> _getData() async {
     var o = Map();
     if((present + perPage )> total) {
-      o = await bloc.getCheckData({"take": perPage, "skip": total});
+      var skip = total <= 1 ? 0 : total;
+      o = await bloc.getCheckData({"take": perPage, "skip": skip});
     } else {
       o = await bloc.getCheckData({"take": perPage, "skip": present + perPage});
     }

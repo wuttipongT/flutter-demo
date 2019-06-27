@@ -2,6 +2,7 @@ import 'package:asset_mobile/model/user_response.dart';
 import 'package:asset_mobile/repository/employee_repository.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:asset_mobile/model/chart_model.dart';
 
 class EmployeeBloc {
   final EmployeeRepository _repository = EmployeeRepository();
@@ -113,6 +114,11 @@ class EmployeeBloc {
     return response;
   }
 
+  Future<List<ChartModel>> getChart() async{
+    final prefs = await SharedPreferences.getInstance();
+    var response = await _repository.getChart( prefs.getString('token'));
+    return response.results;
+  }
 //  BehaviorSubject<Map> get subject => _subject;
 //  BehaviorSubject<int> get subjectTotal => _subjectTotal;
 //  BehaviorSubject<List<Map<String, dynamic>>> get subjectAsset => _subjectAsset;

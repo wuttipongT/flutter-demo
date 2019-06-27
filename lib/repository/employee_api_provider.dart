@@ -1,6 +1,6 @@
 import 'package:asset_mobile/model/employee_response.dart';
 import 'package:dio/dio.dart';
-
+import 'package:asset_mobile/model/chart_model.dart';
 class EmployeeApiProvider {
   final String _endpoint = "http://assets.world-electric.com";
   final Dio _dio = Dio();
@@ -154,4 +154,14 @@ class EmployeeApiProvider {
     }
   }
 
+  Future<ChartModelResponse> getChart(String token) async {
+    var _http = Dio();
+    try {
+      Response response = await _http.get("$_endpoint/api/chart", options: new Options(headers: {"Authorization": "Bearer ${token}"}));
+      return ChartModelResponse.fromJson(response.data);
+    } catch (error, stacktrace) {
+      print("Exception occured: $error stackTrace: $stacktrace");
+      return ChartModelResponse.withError("$error");
+    }
+  }
 }

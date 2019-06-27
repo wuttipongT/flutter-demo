@@ -6,6 +6,8 @@ import 'package:asset_mobile/authentication/authentication.dart';
 import 'package:asset_mobile/login/login.dart';
 
 import 'package:dio/dio.dart';
+import 'package:asset_mobile/sqlite/client_model.dart';
+import 'package:asset_mobile/sqlite/database.dart';
 
 class LoginForm extends StatefulWidget {
   final LoginBloc loginBloc;
@@ -21,6 +23,7 @@ class LoginForm extends StatefulWidget {
   State<LoginForm> createState() => _LoginFormState();
 }
 
+
 class _LoginFormState extends State<LoginForm> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -32,10 +35,16 @@ class _LoginFormState extends State<LoginForm> {
 
   LoginBloc get _loginBloc => widget.loginBloc;
 
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _initRemember());
+  }
+
   @override
   Widget build(BuildContext context) {
-//    _usernameController.text = 's_janpen@world-electric.co.th';
-//    _passwordController.text = 'C000064';
+    _usernameController.text = 's_janpen@world-electric.co.th';
+    _passwordController.text = 'C000064';
 
     return BlocBuilder<LoginEvent, LoginState>(
       bloc: _loginBloc,
@@ -117,13 +126,36 @@ class _LoginFormState extends State<LoginForm> {
     });
   }
 
-  _onLoginButtonPressed() {
+  _onLoginButtonPressed() async{
     _loginBloc.dispatch(LoginButtonPressed(
       username: _usernameController.text,
       password: _passwordController.text,
     ));
-  }
 
+    List<Client> d = await DBProvider.db.getAllClients();
+    if (_value2) {
+      if(d.length > 0) return;
+      await DBProvider.db.newClient(
+          Client(
+              username: _usernameController.text,
+              password: _passwordController.text
+          )
+      );
+    } else {
+      if(d.length > 0) DBProvider.db.deleteAll();
+    }
+  }
+  
+  _initRemember () async{
+    List<Client> d = await DBProvider.db.getAllClients();
+    if (d.length > 0) {
+      setState(() {
+        _usernameController.text = d[0].username;
+        _passwordController.text = d[0].password;
+        _value2 = true;
+      });
+    }
+  }
   _onClickmePressed() async{
 //    var o =  {"x": "y", "a": "b"};
 //
